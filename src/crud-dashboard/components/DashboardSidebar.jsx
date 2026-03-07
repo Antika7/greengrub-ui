@@ -14,6 +14,9 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import PersonIcon from '@mui/icons-material/Person';
 import DinnerDiningIcon from '@mui/icons-material/DinnerDining';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CompostIcon from '@mui/icons-material/Compost';
+import InfoIcon from '@mui/icons-material/Info';
 
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../context/DashboardSidebarContext';
@@ -138,19 +141,19 @@ function DashboardSidebar({
               href="/foodRequests"
               selected={!!matchPath('/foodRequests/*', pathname) || pathname === '/foodRequests'}
             />
-            <DashboardSidebarPageItem
+            {/* <DashboardSidebarPageItem
               id="foodPostings"
               title="Food Postings"
               icon={<DeliveryDiningIcon />}
               href="/foodPostings"
               selected={!!matchPath('/foodPostings/*', pathname) || pathname === '/foodPostings'}
-            />
+            /> */}
             <DashboardSidebarDividerItem />
-            <DashboardSidebarHeaderItem>Postings</DashboardSidebarHeaderItem>
+            {/* <DashboardSidebarHeaderItem>Postings</DashboardSidebarHeaderItem> */}
             <DashboardSidebarPageItem
               id="myMatches"
               title="My Matches"
-              icon={<DeliveryDiningIcon />}
+              icon={<CompostIcon />}
               href="/matches"
               selected={!!matchPath('/matches', pathname)}
               defaultExpanded={!!matchPath('/matches', pathname)}
@@ -182,14 +185,30 @@ function DashboardSidebar({
                 </List>
               }
             />
-            <DashboardSidebarPageItem
-              id="My Profile"
-              title="My Profile"
-              icon={<PersonIcon />}
-              href="/profile"
-              selected={!!matchPath('/profile', pathname)}
-            />
+            <DashboardSidebarDividerItem />
+              <DashboardSidebarPageItem
+                id="My Profile"
+                title="My Profile"
+                icon={<PersonIcon />}
+                href="/profile"
+                selected={!!matchPath('/profile', pathname)}
+              />
+              <DashboardSidebarPageItem
+                id="Settings"
+                title="Settings"
+                icon={<SettingsIcon />}
+                href="/settings"
+                selected={!!matchPath('/settings', pathname)}
+              />
+              <DashboardSidebarPageItem
+                id="About"
+                title="About"
+                icon={<InfoIcon />}
+                href="/about"
+                selected={!!matchPath('/about', pathname)}
+              />
           </List>
+          
         </Box>
       </React.Fragment>
     ),

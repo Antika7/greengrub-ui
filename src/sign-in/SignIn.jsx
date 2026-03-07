@@ -93,7 +93,7 @@ export default function SignIn(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
-    navigate('/employees');
+    navigate('/dashboard');
   };
 
   const validateInputs = () => {

@@ -11,10 +11,8 @@ import SitemarkIcon from './SitemarkIcon';
 export default function DashboardLayout() {
   const theme = useTheme();
 
-  const [isDesktopNavigationExpanded, setIsDesktopNavigationExpanded] =
-    React.useState(true);
-  const [isMobileNavigationExpanded, setIsMobileNavigationExpanded] =
-    React.useState(false);
+  const [isDesktopNavigationExpanded, setIsDesktopNavigationExpanded] = React.useState(true);
+  const [isMobileNavigationExpanded, setIsMobileNavigationExpanded] = React.useState(false);
 
   const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'));
 
@@ -52,8 +50,8 @@ export default function DashboardLayout() {
       sx={{
         position: 'relative',
         display: 'flex',
-        overflow: 'hidden',
-        height: '100%',
+        overflow: 'auto',
+        minHeight: '100vh',
         width: '100%',
       }}
     >
