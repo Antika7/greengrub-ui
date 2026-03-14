@@ -106,7 +106,8 @@ export default function About() {
                     sx={{
                       position: "absolute",
                       width: "100%",
-                      height: 240,
+                      height: "100%",
+                      // height: 240,
                       transform: "rotateY(180deg)",
                       backfaceVisibility: "hidden",
                       p: 2,
@@ -116,10 +117,10 @@ export default function About() {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        To create a culture where surplus food is shared, not wasted. We aim to:
+                      <Typography variant="body2" align="center" sx={{ mb: 1 }}>
+                        To create a culture where surplus food is shared, not wasted.
                       </Typography>
-                      <List dense sx={{ maxHeight: 100, overflowY: 'auto' }}>
+                      {/* <List dense sx={{ maxHeight: 100, overflowY: 'auto' }}>
                         <ListItem disableGutters sx={{ pr: 1 }}>
                           <ListItemText primary="Reduce food wastage at scale" />
                         </ListItem>
@@ -132,7 +133,7 @@ export default function About() {
                         <ListItem disableGutters>
                           <ListItemText primary="Promote responsible consumption" />
                         </ListItem>
-                      </List>
+                      </List> */}
                     </CardContent>
                   </Card>
                 </Box>
@@ -193,9 +194,9 @@ export default function About() {
                       bgcolor: "success.light",
                     }}
                   >
-                    <CardContent>
+                    <CardContent sx={{textAlign: 'center'}}>
                       {/* <Typography variant="h6">Our Mission</Typography> */}
-                      <Typography variant="body2">
+                      <Typography variant="body2" align="center">
                         GreenGrub makes food sharing easy, safe, and responsible.
                       </Typography>
                     </CardContent>
