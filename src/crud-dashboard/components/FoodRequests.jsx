@@ -24,6 +24,8 @@ import HandshakeIcon from '@mui/icons-material/Handshake';
 import ShareIcon from '@mui/icons-material/Share';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
+import ContributePopover from './ContributePopover';
+
 import { useNavigate } from 'react-router';
 import { useDialogs } from '../hooks/useDialogs/useDialogs';
 import useNotifications from '../hooks/useNotifications/useNotifications';
@@ -80,23 +82,35 @@ export default function FoodRequests() {
       },
     );
 
-    // if (!confirmed) return;
+    if (!confirmed) return;
 
-    // try {
-    //   await deleteFoodRequest(item.id);
+    try {
+      // await deleteFoodRequest(item.id);
 
-    //   notifications.show('Food request deleted successfully.', {
-    //     severity: 'success',
-    //     autoHideDuration: 3000,
-    //   });
+      // open a Contribute Popover here to allow user to contribute
+        dialogs.open((props) => <ContributePopover {...props} item={item} />);  
 
-    //   loadData();
-    // } catch (err) {
-    //   notifications.show(`Failed to delete: ${err.message}`, {
-    //     severity: 'error',
-    //   });
-    // }
+      // notifications.show('Food request deleted successfully.', {
+      //   severity: 'success',
+      //   autoHideDuration: 3000,
+      // });
+      // loadData();
+
+    } catch (err) {
+      notifications.show(`Failed to delete: ${err.message}`, {
+        severity: 'error',
+      });
+    }
   }
+
+  const handleShare = (item) => {
+    // const url = `${window.location.origin}/foodRequests/${item.id}`;
+    // navigator.clipboard.writeText(url);
+    notifications.show('Link copied to clipboard!', {
+      severity: 'success',
+      autoHideDuration: 2000,
+    });
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -186,12 +200,12 @@ export default function FoodRequests() {
                   <IconButton onClick={() => handleContribute(item)}>
                     <HandshakeIcon />
                   </IconButton>
-                  <IconButton aria-label="share">
+                  <IconButton aria-label="share" onClick={() => handleShare(item)}>
                     <ShareIcon />
                   </IconButton>
-                  <IconButton aria-label="chat">
+                  {/* <IconButton aria-label="chat">
                     <QuestionAnswerIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </CardActions>
               </Card>
             </Grid>
