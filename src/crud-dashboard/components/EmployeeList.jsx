@@ -8,14 +8,13 @@ import Tooltip from '@mui/material/Tooltip';
 import { DataGrid, GridActionsCellItem, gridClasses } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useDialogs } from '../hooks/useDialogs/useDialogs';
 import useNotifications from '../hooks/useNotifications/useNotifications';
 import {
-  deleteOne as deleteEmployee,
-  getMany as getEmployees,
+  deleteOne as deleteDonation,
+  getMany as getDonations,
 } from '../data/employees';
 import PageContainer from './PageContainer';
 
@@ -114,7 +113,7 @@ export default function EmployeeList() {
     setIsLoading(true);
 
     try {
-      const listData = await getEmployees({
+      const listData = await getDonations({
         paginationModel,
         sortModel,
         filterModel,
@@ -141,30 +140,12 @@ export default function EmployeeList() {
     }
   }, [isLoading, loadData]);
 
-  const handleRowClick = React.useCallback(
-    ({ row }) => {
-      navigate(`/employees/${row.id}`);
-    },
-    [navigate],
-  );
-
-  const handleCreateClick = React.useCallback(() => {
-    navigate('/employees/new');
-  }, [navigate]);
-
-  const handleRowEdit = React.useCallback(
-    (employee) => () => {
-      navigate(`/employees/${employee.id}/edit`);
-    },
-    [navigate],
-  );
-
   const handleRowDelete = React.useCallback(
-    (employee) => async () => {
+    (donation) => async () => {
       const confirmed = await dialogs.confirm(
-        `Do you wish to delete ${employee.name}?`,
+        `Do you wish to delete "${donation.donationName}"?`,
         {
-          title: `Delete employee?`,
+          title: 'Delete donation?',
           severity: 'error',
           okText: 'Delete',
           cancelText: 'Cancel',
@@ -174,16 +155,16 @@ export default function EmployeeList() {
       if (confirmed) {
         setIsLoading(true);
         try {
-          await deleteEmployee(Number(employee.id));
+          await deleteDonation(donation.id);
 
-          notifications.show('Employee deleted successfully.', {
+          notifications.show('Donation deleted successfully.', {
             severity: 'success',
             autoHideDuration: 3000,
           });
           loadData();
         } catch (deleteError) {
           notifications.show(
-            `Failed to delete employee. Reason:' ${deleteError.message}`,
+            `Failed to delete donation. Reason: ${deleteError.message}`,
             {
               severity: 'error',
               autoHideDuration: 3000,
@@ -205,36 +186,29 @@ export default function EmployeeList() {
 
   const columns = React.useMemo(
     () => [
-      { field: 'id', headerName: 'ID' },
-      { field: 'name', headerName: 'Name', width: 140 },
-      { field: 'age', headerName: 'Age', type: 'number' },
+      { field: 'id', headerName: 'ID', width: 100 },
+      { field: 'donationName', headerName: 'Donation', width: 200 },
+      { field: 'pickUpAddress', headerName: 'Pick-up Address', width: 220 },
       {
-        field: 'joinDate',
-        headerName: 'Join date',
-        type: 'date',
+        field: 'pickUpTime',
+        headerName: 'Pick-up Time',
+        type: 'dateTime',
         valueGetter: (value) => value && new Date(value),
-        width: 140,
-      },
-      {
-        field: 'role',
-        headerName: 'Department',
-        type: 'singleSelect',
-        valueOptions: ['Market', 'Finance', 'Development'],
         width: 160,
       },
-      { field: 'isFullTime', headerName: 'Full-time', type: 'boolean' },
+      {
+        field: 'status',
+        headerName: 'Status',
+        type: 'singleSelect',
+        valueOptions: ['ACTIVE', 'CLAIMED', 'CANCELLED'],
+        width: 120,
+      },
       {
         field: 'actions',
         type: 'actions',
         flex: 1,
         align: 'right',
         getActions: ({ row }) => [
-          <GridActionsCellItem
-            key="edit-item"
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={handleRowEdit(row)}
-          />,
           <GridActionsCellItem
             key="delete-item"
             icon={<DeleteIcon />}
@@ -244,15 +218,13 @@ export default function EmployeeList() {
         ],
       },
     ],
-    [handleRowEdit, handleRowDelete],
+    [handleRowDelete],
   );
-
-  const pageTitle = 'Antika';
 
   return (
     <PageContainer
-      title={pageTitle}
-      breadcrumbs={[{ title: pageTitle }]}
+      title="Donations"
+      breadcrumbs={[{ title: 'Donations' }]}
       actions={
         <Stack direction="row" alignItems="center" spacing={1}>
           <Tooltip title="Reload data" placement="right" enterDelay={1000}>
@@ -262,13 +234,6 @@ export default function EmployeeList() {
               </IconButton>
             </div>
           </Tooltip>
-          <Button
-            variant="contained"
-            onClick={handleCreateClick}
-            startIcon={<AddIcon />}
-          >
-            Create
-          </Button>
         </Stack>
       }
     >
@@ -283,9 +248,9 @@ export default function EmployeeList() {
             rowCount={rowsState.rowCount}
             columns={columns}
             pagination
-            sortingMode="server"
-            filterMode="server"
-            paginationMode="server"
+            sortingMode="client"
+            filterMode="client"
+            paginationMode="client"
             paginationModel={paginationModel}
             onPaginationModelChange={handlePaginationModelChange}
             sortModel={sortModel}
@@ -293,7 +258,6 @@ export default function EmployeeList() {
             filterModel={filterModel}
             onFilterModelChange={handleFilterModelChange}
             disableRowSelectionOnClick
-            onRowClick={handleRowClick}
             loading={isLoading}
             initialState={initialState}
             showToolbar
@@ -306,9 +270,6 @@ export default function EmployeeList() {
                 {
                   outline: 'none',
                 },
-              [`& .${gridClasses.row}:hover`]: {
-                cursor: 'pointer',
-              },
             }}
             slotProps={{
               loadingOverlay: {

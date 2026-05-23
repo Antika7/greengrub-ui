@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -7,11 +7,6 @@ import {
   Paper,
   Avatar,
   Button,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
 } from "@mui/material";
 
@@ -19,21 +14,22 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 
+import { useAuth } from "../../context/AuthContext";
+import { getMe } from "../../api/auth";
+
 export default function Profile() {
-  const skills = [
-    "UI",
-    "Android",
-    "iOS",
-    "Python",
-    "Javascript",
-    "Sketch",
-    "Photoshop",
-    "C#",
-    "Illustrator",
-    "PHP",
-    "Linux",
-    "UX",
-  ];
+  const { user } = useAuth();
+  const [profileData, setProfileData] = useState(user);
+
+  useEffect(() => {
+    if (!profileData) {
+      getMe().then(setProfileData).catch(console.error);
+    }
+  }, []);
+
+  const name = profileData?.name ?? profileData?.email ?? 'Unknown User';
+  const role = profileData?.role ?? '';
+  const email = profileData?.email ?? '';
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -41,52 +37,47 @@ export default function Profile() {
       {/* TOP PROFILE CARD */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={{ xs: 5, sm: 10, md: 15, lg: 20 }} alignItems="center" justifyContent="space-between">
-          
+
           {/* Avatar */}
           <Grid item xs={12} md={3} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" } }}>
             <Avatar
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              sx={{ width: 90, height: 90 }}
-            />
+              sx={{ width: 90, height: 90, bgcolor: 'primary.main', fontSize: 36 }}
+            >
+              {name.charAt(0).toUpperCase()}
+            </Avatar>
           </Grid>
 
           {/* Name + Role */}
           <Grid item xs={12} md={3}>
             <Typography variant="h6" fontWeight="bold">
-              Svetlana Anyukova
+              {name}
             </Typography>
 
             <Typography color="text.secondary">
-              Full Stack Web Developer
+              {role}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              {email}
             </Typography>
 
             <Box sx={{ mt: 1 }}>
               <Button variant="contained" sx={{ mr: 1 }}>
                 Contact
               </Button>
-              <Button variant="outlined">Resume</Button>
             </Box>
-          </Grid>
-
-          {/* Rate */}
-          <Grid item xs={12} md={3}>
-            <Typography variant="h6">$44/hr</Typography>
           </Grid>
 
           {/* Info */}
           <Grid item xs={12} md={3}>
-            <Typography variant="body2">Availability: Full-time</Typography>
-            <Typography variant="body2">Age: 32</Typography>
-            <Typography variant="body2">Location: Russia</Typography>
-            <Typography variant="body2">Experience: 6 years</Typography>
-            <Box sx={{my: '5px'}}>
-              <IconButton sx={{mr: '7px'}}>
+            <Box sx={{ my: '5px' }}>
+              <IconButton sx={{ mr: '7px' }}>
                 <FacebookIcon />
               </IconButton>
-              <IconButton sx={{mr: '7px'}}>
+              <IconButton sx={{ mr: '7px' }}>
                 <TwitterIcon />
               </IconButton>
-              <IconButton sx={{mr: '7px'}}>
+              <IconButton sx={{ mr: '7px' }}>
                 <InstagramIcon />
               </IconButton>
             </Box>
@@ -95,7 +86,6 @@ export default function Profile() {
         </Grid>
       </Paper>
 
-      {/* MAIN SECTION */}
       {/* About */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography fontWeight="bold" mb={1}>
@@ -103,9 +93,7 @@ export default function Profile() {
         </Typography>
 
         <Typography color="text.secondary">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-          molestie sem vitae aliquet sodales. Sed vitae ligula sed ex
-          fringilla fermentum.
+          Welcome to GreenGrub. Your role is <strong>{role}</strong>.
         </Typography>
       </Paper>
 

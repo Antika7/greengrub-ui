@@ -9,9 +9,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Stack from '@mui/material/Stack';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import ThemeSwitcher from './ThemeSwitcher';
+import { useAuth } from '../../context/AuthContext';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
@@ -34,6 +36,8 @@ const LogoContainer = styled('div')({
 
 function DashboardHeader({ logo, title, menuOpen, onToggleMenu }) {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleMenuOpen = React.useCallback(() => {
     onToggleMenu(!menuOpen);
@@ -106,6 +110,15 @@ function DashboardHeader({ logo, title, menuOpen, onToggleMenu }) {
           >
             <Stack direction="row" alignItems="center">
               <ThemeSwitcher />
+              <Tooltip title="Sign out" enterDelay={500}>
+                <IconButton
+                  size="small"
+                  aria-label="sign out"
+                  onClick={() => { logout(); navigate('/'); }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Stack>
         </Stack>

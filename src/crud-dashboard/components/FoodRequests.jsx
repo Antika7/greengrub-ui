@@ -73,7 +73,7 @@ export default function FoodRequests() {
 
   const handleContribute = async (item) => {
     const confirmed = await dialogs.confirm(
-      `Do you want to contribute to "${item.title}"?`,
+      `Do you want to contribute to "${item.foodName ?? item.title}"?`,
       {
         title: 'Food Request?',
         severity: 'error',
@@ -114,12 +114,13 @@ export default function FoodRequests() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Open':
-        return 'success';
-      case 'Closed':
-        return 'error';
-      default:
-        return 'warning';
+      case 'APPROVED': return 'success';
+      case 'PENDING':  return 'warning';
+      case 'DONATED':  return 'info';
+      case 'EXPIRED':  return 'error';
+      case 'Open':     return 'success';
+      case 'Closed':   return 'error';
+      default:         return 'default';
     }
   };
 
@@ -169,7 +170,7 @@ export default function FoodRequests() {
                   /> */}
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {item.title}
+                      {item.foodName ?? item.title}
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
@@ -178,7 +179,9 @@ export default function FoodRequests() {
 
                     <Box sx={{ mt: 2 }}>
                       <Typography variant="body2">
-                        Quantity: {item.quantity}
+                        Quantity: {item.quantity?.amount != null
+                          ? `${item.quantity.amount} ${item.quantity.unit ?? ''}`
+                          : item.quantity}
                       </Typography>
 
                       <Typography variant="body2">

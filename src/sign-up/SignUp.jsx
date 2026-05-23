@@ -7,15 +7,21 @@ import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
+import Alert from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -66,6 +72,12 @@ export default function SignUp(props) {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const [role, setRole] = React.useState('RECIPIENT');
+  const [serverError, setServerError] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -83,9 +95,9 @@ export default function SignUp(props) {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password.value || password.value.length < 8) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      setPasswordErrorMessage('Password must be at least 8 characters long.');
       isValid = false;
     } else {
       setPasswordError(false);
@@ -104,18 +116,20 @@ export default function SignUp(props) {
     return isValid;
   };
 
-  const handleSubmit = (event) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault();
-      return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!validateInputs()) return;
+    setServerError('');
+    setIsLoading(true);
+    try {
+      const data = new FormData(event.currentTarget);
+      await signup(data.get('name'), data.get('email'), data.get('password'), role);
+      navigate('/dashboard');
+    } catch (err) {
+      setServerError(err.response?.data?.message ?? 'Sign up failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      lastName: data.get('lastName'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
   };
 
   return (
@@ -137,6 +151,9 @@ export default function SignUp(props) {
             onSubmit={handleSubmit}
             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
+            {serverError && (
+              <Alert severity="error">{serverError}</Alert>
+            )}
             <FormControl>
               <FormLabel htmlFor="name">Full name</FormLabel>
               <TextField
@@ -172,7 +189,7 @@ export default function SignUp(props) {
                 required
                 fullWidth
                 name="password"
-                placeholder="••••••"
+                placeholder="••••••••"
                 type="password"
                 id="password"
                 autoComplete="new-password"
@@ -182,6 +199,18 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="role-label">I am a</InputLabel>
+              <Select
+                labelId="role-label"
+                value={role}
+                label="I am a"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <MenuItem value="RECIPIENT">Recipient (requesting food)</MenuItem>
+                <MenuItem value="DONOR">Donor (contributing food)</MenuItem>
+              </Select>
+            </FormControl>
             <FormControlLabel
               control={<Checkbox value="allowExtraEmails" color="primary" />}
               label="I want to receive updates via email."
@@ -190,6 +219,7 @@ export default function SignUp(props) {
               type="submit"
               fullWidth
               variant="contained"
+              loading={isLoading}
               onClick={validateInputs}
             >
               Sign up
@@ -218,7 +248,9 @@ export default function SignUp(props) {
             <Typography sx={{ textAlign: 'center' }}>
               Already have an account?{' '}
               <Link
-                href="/sign-in/"
+                component="button"
+                type="button"
+                onClick={() => navigate('/')}
                 variant="body2"
                 sx={{ alignSelf: 'center' }}
               >

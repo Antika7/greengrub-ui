@@ -12,12 +12,14 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
+import Alert from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './components/ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -67,8 +69,11 @@ export default function SignIn(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [serverError, setServerError] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -78,22 +83,22 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  // const handleSubmit = (event) => {
-  //   if (emailError || passwordError) {
-  //     event.preventDefault();
-  //     return;
-  //   }
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
-    navigate('/dashboard');
+    setServerError('');
+    setIsLoading(true);
+    try {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      const msg = err.response?.data?.message ?? 'Login failed. Please try again.';
+      setServerError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const validateInputs = () => {
@@ -111,9 +116,9 @@ export default function SignIn(props) {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password.value || password.value.length < 8) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      setPasswordErrorMessage('Password must be at least 8 characters long.');
       isValid = false;
     } else {
       setPasswordError(false);
@@ -148,6 +153,9 @@ export default function SignIn(props) {
               gap: 2,
             }}
           >
+            {serverError && (
+              <Alert severity="error">{serverError}</Alert>
+            )}
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
@@ -171,11 +179,10 @@ export default function SignIn(props) {
                 error={passwordError}
                 helperText={passwordErrorMessage}
                 name="password"
-                placeholder="••••••"
+                placeholder="••••••••"
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                autoFocus
                 required
                 fullWidth
                 variant="outlined"
@@ -191,6 +198,7 @@ export default function SignIn(props) {
               type="submit"
               fullWidth
               variant="contained"
+              loading={isLoading}
               onClick={validateInputs}
             >
               Sign in

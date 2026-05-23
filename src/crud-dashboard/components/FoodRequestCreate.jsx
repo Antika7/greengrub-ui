@@ -2,9 +2,9 @@ import * as React from 'react';
 import { useNavigate } from 'react-router';
 import useNotifications from '../hooks/useNotifications/useNotifications';
 import {
-  createOne as createEmployee,
-  validate as validateEmployee,
-} from '../data/employees';
+  createOne as createFoodRequest,
+  validate as validateFoodRequest,
+} from '../data/foodRequests';
 import FoodRequestForm from './FoodRequestForm';
 import EmployeeForm from './EmployeeForm';
 import PageContainer from './PageContainer';
@@ -43,7 +43,7 @@ export default function FoodRequestCreate() {
   const handleFormFieldChange = React.useCallback(
     (name, value) => {
       const validateField = async (values) => {
-        const { issues } = validateEmployee(values);
+        const { issues } = validateFoodRequest(values);
         setFormErrors({
           ...formErrors,
           [name]: issues?.find((issue) => issue.path?.[0] === name)?.message,
@@ -63,7 +63,7 @@ export default function FoodRequestCreate() {
   }, [setFormValues]);
 
   const handleFormSubmit = React.useCallback(async () => {
-    const { issues } = validateEmployee(formValues);
+    const { issues } = validateFoodRequest(formValues);
     if (issues && issues.length > 0) {
       setFormErrors(
         Object.fromEntries(issues.map((issue) => [issue.path?.[0], issue.message])),
@@ -73,8 +73,8 @@ export default function FoodRequestCreate() {
     setFormErrors({});
 
     try {
-      await createEmployee(formValues);
-      notifications.show('Employee created successfully.', {
+      await createFoodRequest(formValues);
+      notifications.show('Food request created successfully.', {
         severity: 'success',
         autoHideDuration: 3000,
       });
